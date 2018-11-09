@@ -1,0 +1,12 @@
+apiVersion: rbac.istio.io/v1alpha1
+kind: ServiceRoleBinding
+metadata:
+  name: jwt-binding
+  namespace: foo
+spec:
+  roleRef:
+    kind: ServiceRole
+    name: service-admin
+  subjects:
+  - properties:
+      request.auth.claims[sub]: 00000000-0000-0000-0000-000000000000

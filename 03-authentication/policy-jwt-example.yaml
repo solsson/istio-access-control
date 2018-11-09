@@ -1,0 +1,13 @@
+apiVersion: authentication.istio.io/v1alpha1
+kind: Policy
+metadata:
+  name: jwt-example
+  namespace: foo
+spec:
+  targets:
+  - name: httpbin
+  origins:
+  - jwt:
+      issuer: http://demo-keycloak-http.keycloak/auth/realms/testrealm
+      jwksUri: http://demo-keycloak-http.keycloak/auth/realms/testrealm/protocol/openid-connect/certs
+  principalBinding: USE_ORIGIN
