@@ -55,12 +55,16 @@ Check that the service responds through Istio
 
 ```
 $ istiocurl http://x/headers -w '\n'
-{ ... }
+{
+  "headers": {
+    ...
+    "X-Envoy-Decorator-Operation": "httpbin.foo.svc.cluster.local:8000/*",
+    ...
 ```
 
 ## Require authentication
 
-Apply the [gateway and virtualservice](https://istio.io/docs/tasks/security/authn-policy/#end-user-authentication).
+We already [exposed](https://istio.io/docs/tasks/security/authn-policy/#end-user-authentication) httpbin to the public, so let's hurry up with:
 
 ```
 kubectl apply -f ./03-authentication
@@ -91,7 +95,7 @@ helm install --namespace keycloak --name demo stable/keycloak \
 Use `kubectl -n keycloak get service demo-keycloak-http` to verify existence of the service that the authentication step (above) depends on.
 
 Use appropriate means of accessing the UI in a browser, for example the NodePort enabled by the helm options above (`minikube service -n keycloak demo-keycloak-http`).
-The Keycloak UI somtimes behaves erratically over `kubectl port-forward`.
+The Keycloak UI tends to malfunction over `kubectl port-forward`.
 
 You should see a login page where the username and password generated above works.
 
@@ -99,11 +103,10 @@ You should see a login page where the username and password generated above work
 
  * [Create a realm](https://www.keycloak.org/docs/latest/getting_started/index.html#creating-a-realm-and-user) named `demo`.
  * Under the `Login` tab `Require SSL` select `none` to allow plain http.
- * Under ? disable password change on first login.
  * Create two [users](https://www.keycloak.org/docs/latest/getting_started/index.html#_create-new-user) `test1` and `test2` and use the `Credentials` tab to set their passwords to `test` with `Temporary` set to `OFF`.
  * Create an [OpenID Connect](https://www.keycloak.org/docs/latest/server_admin/index.html#oidc-clients) "client" named `myapp` in your demo realm.
    - Any "Root URL" is fine for this example
- * In the client make sure "Acces Type" is `public`. We want to make sure this demo setup is as insecure as possible 🙂.
+ * In the client make sure "Acces Type" is `public`. We want this demo setup is as insecure as possible 🙂.
 
 ## Authenticate
 
@@ -124,15 +127,15 @@ You can use an online service like [jsonwebtoken.io](https://www.jsonwebtoken.io
 Tokens expire after a while so you may want these two lines, together with the alias created during preparations.
 
 ```
-$ token=$(<the curl + jq above>)
-$ istiocurl http://x/headers -w '\n' -H "Authorization: Bearer $token"
+$ TOKEN=$(<the curl + jq above>)
+$ istiocurl http://x/headers -w '\n' -H "Authorization: Bearer $TOKEN"
 { ... }
 ```
 
 Now, does authentication only apply when going through Istio's gateway?
 
 ```
-kubectl run --restart=Never -t -i --rm --image=gcr.io/cloud-builders/curl testcurl -- http://httpbin.foo:8000/  -w '\n' -H "Authorization: Bearer $token"
+kubectl run --restart=Never -t -i --rm --image=gcr.io/cloud-builders/curl testcurl -- http://httpbin.foo:8000/  -w '\n' -H "Authorization: Bearer $TOKEN"
 ```
 
 Indeed not.
@@ -147,7 +150,8 @@ kubectl apply -f ./08-authorization
 kubectl -n foo edit servicerolebinding jwt-binding
 ```
 
-At this stage the Troubleshooting Authorization guide in Istio docs is a recommended read.
+At this stage the [Debugging Authorization](https://istio.io/help/ops/security/debugging-authorization/) section in Istio docs is a recommended read,
+in particular [how to access logs](https://istio.io/help/ops/security/debugging-authorization/#ensure-proxies-enforce-policies-correctly).
 
 ## Summary
 

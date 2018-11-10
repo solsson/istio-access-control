@@ -22,6 +22,6 @@ spec:
   - name: httpbin
   origins:
   - jwt:
-      issuer: http://demo-keycloak-http.keycloak/auth/realms/testrealm
-      jwksUri: http://demo-keycloak-http.keycloak/auth/realms/testrealm/protocol/openid-connect/certs
+      issuer: http://demo-keycloak-http.keycloak/auth/realms/demo
+      jwksUri: http://demo-keycloak-http.keycloak/auth/realms/demo/protocol/openid-connect/certs
   principalBinding: USE_ORIGIN
