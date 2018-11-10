@@ -21,9 +21,12 @@ A special thanks goes to [Keycloak's blog ](https://blog.keycloak.org/2018/02/ke
 A few things will vary depending on your cluster setup. You might be able to access the `istio-ingressgateway` over [NodePort]() or an actual public IP/FQDN. If not you can run tests in-cluster, using an alias or function.
 
 ```
+# maybe
 function istiocurl() {
-  kubectl run --restart=Never -t -i --rm --image=gcr.io/cloud-builders/curl istiocurl -- http://istio-ingressgateway.istio-system.svc.cluster.local$@
+  kubectl run --restart=Never -t -i --rm --image=solsson/curl istiocurl -- --connect-to :80:istio-ingressgateway.istio-system.svc.cluster.local:80 $@
 }
+# or maybe
+alias istiocurl="curl --connect-to :80:$(minikube ip):31380"
 ```
 
 Soon enough you'll get to verify that your alias works.
@@ -51,7 +54,7 @@ If Istio injection worked you'll have three containers in the pod. Try `kubectl 
 Check that the service responds through Istio
 
 ```
-$ istiocurl /headers -w '\n'
+$ istiocurl http://x/headers -w '\n'
 { ... }
 ```
 
@@ -68,7 +71,7 @@ Note in the [Policy](./03-authentication/policy-jwt-example.yaml) that we're ref
 Now, once the policy has propagated to you sidecars, access should be denied
 
 ```
-$ istiocurl /headers -w '\n'
+$ istiocurl http://x/headers -w '\n'
 Origin authentication failed.
 ```
 
@@ -122,7 +125,7 @@ Tokens expire after a while so you may want these two lines, together with the a
 
 ```
 $ token=$(<the curl + jq above>)
-$ istiocurl /headers -w '\n' -H "Authorization: Bearer $token"
+$ istiocurl http://x/headers -w '\n' -H "Authorization: Bearer $token"
 { ... }
 ```
 
