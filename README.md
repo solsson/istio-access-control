@@ -43,8 +43,8 @@ We use the Istio [Authentication Policy](https://istio.io/docs/tasks/security/au
 but without the mutual TLS part.
 
 ```
-kubectl apply -f ./02-istio-httbin
-kubectl apply -f <(istioctl kube-inject -f ./02-istio-httbin/httpbin.yaml) -n foo
+kubectl apply -f ./02-istio-httpbin/
+kubectl apply -f <(istioctl kube-inject -f ./02-istio-httpbin/httpbin.yaml) -n foo
 ```
 
 If Istio injection worked you'll have three containers in the pod. Try `kubectl -n foo logs -l app=httpbin -c istio-proxy`.
@@ -85,7 +85,7 @@ helm install --namespace keycloak --name demo stable/keycloak \
   --set keycloak.password=password
 ```
 
-Use `kubectl -n keycloak get service test1-keycloak-http` to verify existence of the service that the authentication step (above) depends on.
+Use `kubectl -n keycloak get service demo-keycloak-http` to verify existence of the service that the authentication step (above) depends on.
 
 Use appropriate means of accessing the UI in a browser, for example the NodePort enabled by the helm options above (`minikube service -n keycloak demo-keycloak-http`).
 The Keycloak UI somtimes behaves erratically over `kubectl port-forward`.
@@ -95,9 +95,9 @@ You should see a login page where the username and password generated above work
 ## Set up a login
 
  * [Create a realm](https://www.keycloak.org/docs/latest/getting_started/index.html#creating-a-realm-and-user) named `demo`.
- * Under the `Login` tab disable the HTTPS requirement.
+ * Under the `Login` tab `Require SSL` select `none` to allow plain http.
  * Under ? disable password change on first login.
- * Create two users `test1` and `test2` and use the `Credentials` tab to set their passwords to `test`.
+ * Create two [users](https://www.keycloak.org/docs/latest/getting_started/index.html#_create-new-user) `test1` and `test2` and use the `Credentials` tab to set their passwords to `test` with `Temporary` set to `OFF`.
  * Create an [OpenID Connect](https://www.keycloak.org/docs/latest/server_admin/index.html#oidc-clients) "client" named `myapp` in your demo realm.
    - Any "Root URL" is fine for this example
  * In the client make sure "Acces Type" is `public`. We want to make sure this demo setup is as insecure as possible 🙂.
@@ -129,7 +129,7 @@ $ istiocurl /headers -w '\n' -H "Authorization: Bearer $token"
 Now, does authentication only apply when going through Istio's gateway?
 
 ```
-kubectl run --restart=Never -t -i --rm --image=gcr.io/cloud-builders/curl testcurl -- http://httpbin.foo:8000/  -w '\n'
+kubectl run --restart=Never -t -i --rm --image=gcr.io/cloud-builders/curl testcurl -- http://httpbin.foo:8000/  -w '\n' -H "Authorization: Bearer $token"
 ```
 
 Indeed not.
@@ -151,3 +151,10 @@ At this stage the Troubleshooting Authorization guide in Istio docs is a recomme
 You should now be blocked when using one user's token and allowed in when using the other.
 
 You can keep editing the Keycloak User (and/or Realm) and the ServiceRoleBinding to test other [Properties](https://istio.io/docs/reference/config/authorization/constraints-and-properties/#properties) for authorization.
+
+## Clean up
+
+```
+kubectl delete namespace keycloak
+kubectl 
+```
