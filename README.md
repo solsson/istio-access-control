@@ -30,11 +30,11 @@ Soon enough you'll get to verify that your alias works.
 
 ## Install istio
 
-We're using [Knative's Istio configuration](https://github.com/knative/serving/blob/v0.2.1/third_party/istio-1.0.2/download-istio.sh#L20).
+We're using [Knative's Istio configuration](https://github.com/knative/serving/blob/v0.2.1/third_party/istio-1.0.2/download-istio.sh#L13).
 
 ```
 kubectl apply -f https://github.com/knative/serving/releases/download/v0.2.1/istio-crds.yaml
-kubectl apply -f https://github.com/knative/serving/releases/download/v0.2.1/istio-lean.yaml
+kubectl apply -f https://github.com/knative/serving/releases/download/v0.2.1/istio.yaml
 ```
 
 ## Sample pod
@@ -44,7 +44,7 @@ but without the mutual TLS part.
 
 ```
 kubectl apply -f ./02-istio-httpbin/
-kubectl apply -f <(istioctl kube-inject -f ./02-istio-httpbin/httpbin.yaml) -n foo
+istioctl kube-inject -f ./02-istio-httpbin/httpbin.yaml | kubectl -n foo apply -f -
 ```
 
 If Istio injection worked you'll have three containers in the pod. Try `kubectl -n foo logs -l app=httpbin -c istio-proxy`.
