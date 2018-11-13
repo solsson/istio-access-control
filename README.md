@@ -120,7 +120,9 @@ $ curl -X POST "http://$(minikube ip):30080/auth/realms/demo/protocol/openid-con
 # a long base64 string
 ```
 
-You can use an online service like [jsonwebtoken.io](https://www.jsonwebtoken.io/) to see what it says. Try the same command for user `test2`, as you'll need to alternate between these logins shortly.
+Try the same command for user `test2`, as you'll need to alternate between these logins shortly.
+
+You can inspect and verify tokens using for example [jwt.io](https://jwt.io/). It'll need the key: `echo "-----BEGIN RSA PUBLIC KEY-----"; curl -s http://$(minikube ip):30080/auth/realms/demo | jq -r '.public_key'; echo "-----END RSA PUBLIC KEY-----";`.
 
 ## Curl using the access token
 
@@ -152,6 +154,7 @@ kubectl -n foo edit servicerolebinding jwt-binding
 
 At this stage the [Debugging Authorization](https://istio.io/help/ops/security/debugging-authorization/) section in Istio docs is a recommended read,
 in particular [how to access logs](https://istio.io/help/ops/security/debugging-authorization/#ensure-proxies-enforce-policies-correctly).
+For example if you enable debug logging and run `kubectl logs` as described, but with `| grep auth | grep key` instead you can see requests to keycloak.
 
 ## Summary
 
