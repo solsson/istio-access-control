@@ -114,6 +114,7 @@ Finally there's some excitement! You may [test browser login](https://www.keyclo
 
 ```
 $ curl -X POST "http://$(minikube ip):30080/auth/realms/demo/protocol/openid-connect/token" \
+  -H "Host: demo-keycloak-http.keycloak" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   -d 'username=test1&password=test&grant_type=password&client_id=myapp' -s \
   | jq -r '.access_token'  
