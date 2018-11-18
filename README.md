@@ -71,7 +71,7 @@ kubectl apply -f ./03-authentication
 
 Note in the [Policy](./03-authentication/policy-jwt-example.yaml) that we're refering to the Keycloak service that is yet to be created.
 
-Now, once the policy has propagated to you sidecars, access should be denied
+Now, once the policy has propagated to you sidecars (retry a few times), access should be denied
 
 ```
 $ istiocurl http://x/headers -w '\n'
