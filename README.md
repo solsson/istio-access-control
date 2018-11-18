@@ -33,11 +33,11 @@ Soon enough you'll get to verify that your alias works.
 
 ## Install istio
 
-We're using [Knative's Istio configuration](https://github.com/knative/serving/blob/v0.2.1/third_party/istio-1.0.2/download-istio.sh#L13).
+We're using [Knative's Istio configuration](https://github.com/knative/serving/blob/v0.2.2/third_party/istio-1.0.2/download-istio.sh#L13).
 
 ```
-kubectl apply -f https://github.com/knative/serving/releases/download/v0.2.1/istio-crds.yaml
-kubectl apply -f https://github.com/knative/serving/releases/download/v0.2.1/istio.yaml
+kubectl apply -f https://github.com/knative/serving/releases/download/v0.2.2/istio-crds.yaml
+kubectl apply -f https://github.com/knative/serving/releases/download/v0.2.2/istio.yaml
 ```
 
 ## Sample pod
