@@ -21,15 +21,14 @@ A special thanks goes to [Keycloak's blog ](https://blog.keycloak.org/2018/02/ke
 A few things will vary depending on your cluster setup. You might be able to access the `istio-ingressgateway` over [NodePort]() or an actual public IP/FQDN. If not you can run tests in-cluster, using an alias or function.
 
 ```
-# maybe
-function istiocurl() {
-  kubectl run --restart=Never -t -i --rm --image=solsson/curl istiocurl -- --connect-to :80:istio-ingressgateway.istio-system.svc.cluster.local:80 $@
-}
-# or maybe
-alias istiocurl="curl --connect-to :80:$(minikube ip):31380"
+# Istio examples' curl is too old for --connect-to
+kcurl='kubectl run kcurl --restart=Never -t -i --rm --image=solsson/curl@sha256:92ebf15ac57bea360484480336ed5d9fa16d38d773fd00f7e9fb2cae94baf25a --'
+# Functions unlike aliases work in scripts too
+function istiocurl() { $kcurl --connect-to :80:istio-ingressgateway.istio-system.svc.cluster.local:80 $@; }
+function tokencurl() { $kcurl http://demo-keycloak-http.keycloak/auth/realms/demo/protocol/openid-connect/token "$@"; }
 ```
 
-Soon enough you'll get to verify that your alias works.
+Local curl is a lot faster but depends on your cluster setup. Feel free to replaces these aliases. Soon enough you'll get to verify that they work.
 
 ## Install istio
 
@@ -113,11 +112,9 @@ You should see a login page where the username and password generated above work
 Finally there's some excitement! You may [test browser login](https://www.keycloak.org/docs/latest/getting_started/index.html#user-account-service) first, but we can do even better and brute force it (assuming `$(minikube ip):30080` is your keycloak host):
 
 ```
-$ curl -X POST "http://$(minikube ip):30080/auth/realms/demo/protocol/openid-connect/token" \
-  -H "Host: demo-keycloak-http.keycloak" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
+$ tokencurl -H "Content-Type: application/x-www-form-urlencoded" \
   -d 'username=test1&password=test&grant_type=password&client_id=myapp' -s \
-  | jq -r '.access_token'  
+  | jq -r '.access_token'
 # a long base64 string
 ```
 
